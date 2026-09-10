@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dreamybull OS v1.0</title>
+    <style>
+        :root {
+            --bg-color: #008080;
+            --win-bg: #c0c0c0;
+            --win-border-light: #ffffff;
+            --win-border-dark: #808080;
+            --win-title: #000080;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            font-family: 'Tahoma', 'Segoe UI', sans-serif;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        /* OUTER SYSTEM (THE TWIST) */
+        #outer-system {
+            width: 100vw;
+            height: 100vh;
+            background: #050505;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #outer-screen-frame {
+            width: 90vw;
+            height: 85vh;
+            background: #111;
+            border: 20px solid #222;
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 2s ease;
+        }
+
+        /* DESKTOP ENVIRONMENT */
+        #desktop {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            position: relative;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* ICONS */
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 90px);
+            grid-gap: 20px;
+            padding: 20px;
+        }
+
+        .icon {
+            width: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            font-size: 12px;
+            text-align: center;
+            padding: 5px;
+            border: 1px solid transparent;
+        }
+
+        .icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px dotted #fff;
+        }
+
+        .icon-img {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+
+        /* WINDOWS */
+        .window {
+            position: absolute;
+            width: 380px;
+            min-height: 250px;
+            background: var(--win-bg);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+            display: none;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .window-header {
+            background: var(--win-title);
+            color: white;
+            padding: 3px 6px;
+            font-weight: bold;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        .window-close {
+            background: var(--win-bg);
+            color: black;
+            border: 1px solid black;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            line-height: 12px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .window-body {
+            padding: 10px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            font-size: 13px;
+            color: black;
+            overflow-y: auto;
+        }
+
+        /* BUTTONS */
+        .btn {
+            background: var(--win-bg);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 4px 0;
+        }
+
+        .btn:active {
+            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+        }
+
+        /* TASKBAR */
+        #taskbar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 35px;
+            background: var(--win-bg);
+            border-top: 2px solid var(--win-border-light);
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            z-index: 999;
+        }
+
+        .start-btn {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            height: 28px;
+            padding: 0 8px;
+        }
+
+        /* CHAOS EFFECTS */
+        .shake {
+            animation: shake 0.2s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(2px, 2px) rotate(0deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            40% { transform: translate(1px, -1px) rotate(-1deg); }
+            60% { transform: translate(-2px, 2px) rotate(0deg); }
+            80% { transform: translate(2px, -2px) rotate(1deg); }
+            100% { transform: translate(0px, 0px) rotate(0deg); }
+        }
+
+        .glitch-bg {
+            animation: glitch 0.1s infinite;
+        }
+
+        @keyframes glitch {
+            0% { filter: hue-rotate(0deg) invert(0); }
+            50% { filter: hue-rotate(180deg) invert(0.8); }
+            100% { filter: hue-rotate(360deg) invert(0); }
+        }
+
+        /* POPUPS */
+        .popup-spam {
+            position: absolute;
+            width: 200px;
+            background: red;
+            color: yellow;
+            font-weight: bold;
+            border: 3px double white;
+            padding: 10px;
+            text-align: center;
+            z-index: 500;
+            box-shadow: 5px 5px 0px black;
+        }
+
+        /* TWIST OVERLAY */
+        #twist-ui {
+            display: none;
+            position: absolute;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            top: 20px;
+            left: 20px;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="outer-system">
+        <div id="twist-ui">
+            <h2>VMware Hypervisor v9.4 [HOST SYSTEM]</h2>
+            <p>STATUS: Virtual Machine "Dreamybull_OS" experiencing critical kernel failure.</p>
+            <p>CONTAINMENT: ACTIVE</p>
+            <button class="btn" onclick="location.reload()" style="background:#222; color:#0f0; border-color:#0f0;">REBOOT VIRTUAL MACHINE</button>
+        </div>
+
+        <!-- FAKE MONITOR FRAME -->
+        <div id="outer-screen-frame">
+            <div id="desktop">
+                
+                <!-- ICON GRID -->
+                <div class="icon-grid">
+                    <div class="icon" onclick="openWindow('win-yt')">
+                        <div class="icon-img">▶️</div>
+                        <div>YouTube</div>
+                    </div>
+                    <div class="icon" onclick="openWindow('win-msg')">
+                        <div class="icon-img">💬</div>
+                        <div>Messages</div>
+                    </div>
+                    <div class="icon" onclick="openWindow('win-meme')">
+                        <div class="icon-img">🖼️</div>
+                        <div>Meme Gen</div>
+                    </div>
+                    <div class="icon" onclick="openWindow('win-shop')">
+                        <div class="icon-img">🛒</div>
+                        <div>Shopping</div>
+                    </div>
+                    <div class="icon" onclick="openWindow('win-exe')">
+                        <div class="icon-img">⚡</div>
+                        <div>Dreamybull.exe</div>
+                    </div>
+                    <div class="icon" onclick="triggerDoNotClick()">
+                        <div class="icon-img">⚠️</div>
+                        <div style="color: #ff5555;">DO NOT CLICK</div>
+                    </div>
+                </div>
+
+                <!-- WINDOW: YOUTUBE -->
+                <div id="win-yt" class="window" style="top: 40px; left: 120px;">
+                    <div class="window-header"><span>YouTube</span><span class="window-close" onclick="closeWindow('win-yt')">X</span></div>
+                    <div class="window-body">
+                        <h3>Recommended Videos</h3>
+                        <button class="btn" onclick="addChaos(5, 'AMBATUKAM Original Video (10 HOURS)')">▶ AMBATUKAM Original Video (10 Hours)</button>
+                        <button class="btn" onclick="addChaos(8, 'Tribute Soundboards Collection')">▶ Insane Soundboard Vol. 4</button>
+                        <button class="btn" onclick="addChaos(12, 'HOW TO FIX CORRUPTED COMPUTER 2026')">▶ PC Fix Tutorial (100% Real)</button>
+                    </div>
+                </div>
+
+                <!-- WINDOW: MESSAGES -->
+                <div id="win-msg" class="window" style="top: 80px; left: 160px;">
+                    <div class="window-header"><span>Messages</span><span class="window-close" onclick="closeWindow('win-msg')">X</span></div>
+                    <div class="window-body">
+                        <div id="chat-box" style="height: 120px; background: white; border: 1px solid black; padding: 5px; overflow-y: auto; margin-bottom: 5px;">
+                            <div><b>Amba:</b> Yoooo bro!</div>
+                        </div>
+                        <input type="text" id="chat-input" placeholder="Type a message..." style="width: 70%;">
+                        <button class="btn" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+
+                <!-- WINDOW: MEME GENERATOR -->
+                <div id="win-meme" class="window" style="top: 120px; left: 200px;">
+                    <div class="window-header"><span>Meme Generator</span><span class="window-close" onclick="closeWindow('win-meme')">X</span></div>
+                    <div class="window-body" style="text-align: center;">
+                        <div id="meme-canvas" style="background: #333; color: white; height: 100px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; margin-bottom: 5px;">
+                            TOP TEXT
+                        </div>
+                        <button class="btn" onclick="generateMeme()">Generate Ambatumeme</button>
+                    </div>
+                </div>
+
+                <!-- WINDOW: SHOPPING -->
+                <div id="win-shop" class="window" style="top: 60px; left: 240px;">
+                    <div class="window-header"><span>AmbaBay Shopping</span><span class="window-close" onclick="closeWindow('win-shop')">X</span></div>
+                    <div class="window-body">
+                        <p>Welcome to online shopping!</p>
+                        <button class="btn" onclick="addChaos(10, 'Bought: 500 lbs of Mayo')">🛒 Buy 500lbs of Mayo ($49.99)</button>
+                        <button class="btn" onclick="addChaos(15, 'Bought: Dreamybull Autographed Bus Pass')">🛒 Autographed Bus Pass ($999.00)</button>
+                        <button class="btn" onclick="addChaos(20, 'Bought: Illegal CPU Overclock')">🛒 CPU Supercharger ($0.00)</button>
+                    </div>
+                </div>
+
+                <!-- WINDOW: DREAMYBULL.EXE -->
+                <div id="win-exe" class="window" style="top: 100px; left: 100px;">
+                    <div class="window-header"><span>Dreamybull.exe</span><span class="window-close" onclick="closeWindow('win-exe')">X</span></div>
+                    <div class="window-body" style="text-align: center;">
+                        <h2 style="color: red;">AMBATU-OVERCLOCK</h2>
+                        <p>Press the button to boost RAM!</p>
+                        <button class="btn" style="font-size: 16px; background: yellow;" onclick="addChaos(25, 'OVERCLOCKING RAM...')">⚡ AMBATUBLOW ⚡</button>
+                    </div>
+                </div>
+
+                <!-- TASKBAR -->
+                <div id="taskbar">
+                    <button class="start-btn btn" onclick="addChaos(2, 'Opened Start Menu')">📁 Start</button>
+                    <div id="status-text" style="margin-left: 10px; font-size: 11px;">System Status: Stable (Chaos: <span id="chaos-num">0</span>%)</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chaosLevel = 0;
+        let isZoomedOut = false;
+
+        // Audio synthesizer for ambient cursed sounds
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playBeep(freq = 440, type = 'sine', duration = 0.1) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function openWindow(id) {
+            playBeep(600, 'square', 0.05);
+            const win = document.getElementById(id);
+            win.style.display = 'flex';
+            // Bring to front
+            document.querySelectorAll('.window').forEach(w => w.style.zIndex = 10);
+            win.style.zIndex = 20;
+        }
+
+        function closeWindow(id) {
+            playBeep(300, 'square', 0.05);
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function triggerDoNotClick() {
+            addChaos(15, "CLICKED THE FORBIDDEN BUTTON!");
+            playBeep(150, 'sawtooth', 0.4);
+            createPopup("WHY DID YOU CLICK THAT?!");
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const chat = document.getElementById('chat-box');
+            if (!input.value) return;
+
+            chat.innerHTML += `<div><b>You:</b> ${input.value}</div>`;
+            input.value = '';
+            
+            setTimeout(() => {
+                const responses = [
+                    "AMBATUKAMMMM!",
+                    "Omg bro stop touching the system files!",
+                    "IT'S BLOWING UP!",
+                    "YES KING!",
+                    "MAYDAY MAYDAY!"
+                ];
+                const randResp = responses[Math.floor(Math.random() * responses.length)];
+                chat.innerHTML += `<div style="color:red;"><b>Amba:</b> ${randResp}</div>`;
+                chat.scrollTop = chat.scrollHeight;
+                addChaos(8, "Received cursed message");
+            }, 500);
+        }
+
+        function generateMeme() {
+            const memes = ["AMBATUNUT", "AMBATUCRY", "AMBATUSREAM", "BUS BUS BUS", "YES KING"];
+            const text = memes[Math.floor(Math.random() * memes.length)];
+            document.getElementById('meme-canvas').innerText = text;
+            addChaos(6, "Generated Cursed Meme");
+        }
+
+        function createPopup(text) {
+            const popup = document.createElement('div');
+            popup.className = 'popup-spam';
+            popup.innerText = text || "CRITICAL WARNING: AMBATU-ERROR!";
+            popup.style.top = Math.random() * (window.innerHeight - 150) + "px";
+            popup.style.left = Math.random() * (window.innerWidth - 200) + "px";
+            
+            popup.onclick = () => {
+                addChaos(5, "Clicked Popup");
+                popup.remove();
+            };
+
+            document.getElementById('desktop').appendChild(popup);
+        }
+
+        function addChaos(amount, action) {
+            if (isZoomedOut) return;
+
+            chaosLevel += amount;
+            document.getElementById('chaos-num').innerText = chaosLevel;
+            playBeep(200 + (chaosLevel * 10), 'sawtooth', 0.1);
+
+            const desktop = document.getElementById('desktop');
+
+            // Escalating visual effects
+            if (chaosLevel > 20 && chaosLevel <= 50) {
+                desktop.classList.add('shake');
+            } 
+            if (chaosLevel > 50 && chaosLevel <= 80) {
+                desktop.classList.add('glitch-bg');
+                if (Math.random() > 0.5) createPopup("SYSTEM OVERHEATING!");
+            }
+            if (chaosLevel > 80 && chaosLevel < 100) {
+                // Spawn chaos rapidly
+                createPopup("AMBATUBLOW!!!");
+                // Duplicate random windows
+                const wins = ['win-yt', 'win-msg', 'win-meme', 'win-shop', 'win-exe'];
+                openWindow(wins[Math.floor(Math.random() * wins.length)]);
+            }
+
+            // TRIGGER THE ENDING
+            if (chaosLevel >= 100) {
+                triggerEnding();
+            }
+        }
+
+        function triggerEnding() {
+            isZoomedOut = true;
+            const frame = document.getElementById('outer-screen-frame');
+            const twistUI = document.getElementById('twist-ui');
+
+            // Insane crash effect
+            playBeep(100, 'sawtooth', 1.5);
+            
+            // Zoom out to reveal the "Outer Computer"
+            setTimeout(() => {
+                frame.style.transform = "scale(0.6) rotateX(15deg) rotateY(-10deg)";
+                frame.style.boxShadow = "0 0 50px #ff0000";
+                document.getElementById('outer-system').style.background = "#0a0a16";
+                twistUI.style.display = "block";
+            }, 500);
+        }
+
+        // Window drag logic
+        document.querySelectorAll('.window-header').forEach(header => {
+            header.addEventListener('mousedown', (e) => {
+                const win = header.parentElement;
+                let offsetX = e.clientX - win.offsetLeft;
+                let offsetY = e.clientY - win.offsetTop;
+
+                function moveHandler(e) {
+                    win.style.left = (e.clientX - offsetX) + 'px';
+                    win.style.top = (e.clientY - offsetY) + 'px';
+                }
+
+                function upHandler() {
+                    window.removeEventListener('mousemove', moveHandler);
+                    window.removeEventListener('mouseup', upHandler);
+                }
+
+                window.addEventListener('mousemove', moveHandler);
+                window.addEventListener('mouseup', upHandler);
+            });
+        });
+    </script>
+</body>
+</html>
